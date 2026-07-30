@@ -69,3 +69,7 @@ Testing/
 .cache/
 
 .vs/
+x64/
+*.aps
+*.filters
+*.user

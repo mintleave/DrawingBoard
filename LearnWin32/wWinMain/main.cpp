@@ -21,6 +21,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
     wc.hInstance = hInstance;
     wc.lpszClassName = CLASS_NAME;
     wc.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);  // 白色背景
+    wc.hCursor = LoadCursor(NULL, IDC_CROSS); // 十字准星光标
 
     RegisterClass(&wc);
 

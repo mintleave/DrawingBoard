@@ -137,3 +137,10 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 int xPos = GET_X_LPARAM(lParam); 
 int yPos = GET_Y_LPARAM(lParam);
 ```
+
+## 图形绘制
+
+[代码参考](https://learn.microsoft.com/zh-cn/windows/win32/learnwin32/your-first-direct2d-program)
+
+按下鼠标左键开始画线
+![](./img/Point0.png)

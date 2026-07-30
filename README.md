@@ -11,7 +11,7 @@ win32的窗口项目，实现一个简单的画板，要求实现绘制线段、
 
 # LearnWin32
 
-## wWinMain
+## 创建窗口
 
 [案例来源](https://github.com/microsoft/Windows-classic-samples/blob/main/Samples/Win7Samples/begin/LearnWin32/HelloWorld/cpp/main.cpp)
 

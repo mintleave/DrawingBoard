@@ -215,6 +215,8 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         // 松开左键
         case WM_LBUTTONUP:
         {
+            xPoint1 = GET_X_LPARAM(lParam);
+            yPoint1 = GET_Y_LPARAM(lParam);
             D2D1_POINT_2F point0(xPoint0, yPoint0), point1(xPoint1, yPoint1);
             if (!(point0.x == point1.x && point0.y == point1.y)) {
                 m_PointedLine.emplace_back(point0, point1);
@@ -239,6 +241,8 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
         // 松开右键
         case WM_RBUTTONUP:
         {
+            xPoint1 = GET_X_LPARAM(lParam);
+            yPoint1 = GET_Y_LPARAM(lParam);
             D2D1_POINT_2F point0(xPoint0, yPoint0), point1(xPoint1, yPoint1);
             if (!(point0.x == point1.x && point0.y == point1.y)) {
                 m_PointedRect.emplace_back(point0, point1);

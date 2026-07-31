@@ -17,6 +17,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow
 
     ShowWindow(win.Window(), nCmdShow);
 
+    // 消息循环
     MSG msg = { };
     while (GetMessage(&msg, NULL, 0, 0))
     {

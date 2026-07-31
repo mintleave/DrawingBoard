@@ -37,9 +37,9 @@ public:
 private:
     HWND m_hwnd;
 
-    ID2D1Factory* m_pFactory;
-    ID2D1HwndRenderTarget* m_pRenderTarget;
-    ID2D1SolidColorBrush* m_pBrush;
+    ID2D1Factory* m_pFactory;                   // 用于创建D2D资源
+    ID2D1HwndRenderTarget* m_pRenderTarget;     // 绑定到窗口（HWND）的渲染目标, 相当于画布
+    ID2D1SolidColorBrush* m_pBrush;             // 画刷，用来指定绘制时用的颜色
 
     int xPoint0, yPoint0, xPoint1, yPoint1; // 绘制起点与终点
     bool IsPointingLine = false, IsPointingRect = false;    // 是否处于绘制状态, 矩形还是线段

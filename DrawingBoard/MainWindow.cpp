@@ -16,6 +16,7 @@ HRESULT MainWindow::CreateGraphicsResources() {
     if (m_pRenderTarget == NULL)
     {
         RECT rc;
+        // 获取窗口客户区（Client Area）尺寸和位置
         GetClientRect(m_hwnd, &rc);
 
         D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
@@ -27,7 +28,7 @@ HRESULT MainWindow::CreateGraphicsResources() {
 
         if (SUCCEEDED(hr))
         {
-            const D2D1_COLOR_F color = D2D1::ColorF(0, 0, 256);
+            const D2D1_COLOR_F color = D2D1::ColorF(D2D1::ColorF::Blue);
             hr = m_pRenderTarget->CreateSolidColorBrush(color, &m_pBrush);
         }
     }
@@ -257,11 +258,12 @@ LRESULT MainWindow::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
             if (IsPointingLine || IsPointingRect) {
                 xPoint1 = GET_X_LPARAM(lParam);
                 yPoint1 = GET_Y_LPARAM(lParam);
+                // 标记窗口的某个区域为"无效"（需要重绘）, NULL 表示全部为"无效"
                 InvalidateRect(m_hwnd, NULL, FALSE);
             }
         }
 
-        // 改变大小
+        // 改变大小 
         case WM_SIZE:
         {
             if (m_pRenderTarget != NULL)

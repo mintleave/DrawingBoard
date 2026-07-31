@@ -144,3 +144,6 @@ int yPos = GET_Y_LPARAM(lParam);
 
 按下鼠标左键开始画线
 ![](./img/Point0.png)
+
+按下鼠标右键开始绘制矩形
+![](./img/Point1.png)

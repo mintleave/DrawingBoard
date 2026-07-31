@@ -9,6 +9,50 @@ win32的窗口项目，实现一个简单的画板，要求实现绘制线段、
 
 3. 图形绘制
 
+## 思路
+
+1. 创建一个窗口
+
+2. 处理鼠标消息, 获取光标坐标
+
+3. 左键按下确定线段起点, 左键松开确定线段终点, 右键按下确定矩形左上, 右键松开确定矩形右下
+
+4. 将两个点存储在数组里
+
+## 搭建项目
+
+- 创建main.cpp, 定义程序入口
+
+- 设计MainWindow类，大体参照[官方示例](https://github.com/microsoft/Windows-classic-samples/blob/main/Samples/Win7Samples/begin/LearnWin32/BaseWindow/cpp/main.cpp)
+
+- 在main.cpp中创建MainWindow
+
+## 结果展示
+鼠标左键绘制线段, 右键绘制矩形
+![](./img/pointed.png)
+
+## 测试
+
+可以正常绘制线段，绘制矩形
+
+鼠标快速滑动，离开屏幕或是快速晃动屏幕，改变屏幕大小都没有出现bug。
+
+## 遇到的问题
+
+1. 因为是第一次写win32窗口, 之前没接触过, 我就先分析需求, 确定需要学哪些内容, 然后去看官方文档和示例, 确认完成所有的先决条件后在开始搭建项目
+
+2. 在初步完成编码后遇到一个空指针错误, 关于MainWindow类的 WindowProc, 因为WindowProc为静态函数, 我需要给他this指针使用, 结果this为空, 我又对比了官方示例, 发现是CreateWindowEx最后一个参数的问题: 应该传this，我传的NULL
+
+3. 在初步完成后, 进行测试绘制线段时发现一个bug: 点击时会与上一个"终点"连线, 我又仔细看了代码逻辑, 发现问题是松开左键时没有更新"终点"。
+
+## 心得
+
+- 官方示例还是要仔细看, 本次项目就参考的大量官方示例
+
+- 把大问题分解成小问题一个一个解决, 确定需要先学习哪些前置, 先处理这些前置
+
+- 理清思路后再开始编码, 这样找bug也好找
+
 # LearnWin32
 
 ## 创建窗口
@@ -147,3 +191,80 @@ int yPos = GET_Y_LPARAM(lParam);
 
 按下鼠标右键开始绘制矩形
 ![](./img/Point1.png)
+
+关于d2d绘图:
+``` c++
+// 创建 D2D 资源
+HRESULT MainWindow::CreateGraphicsResources() {
+    HRESULT hr = S_OK;
+    if (m_pRenderTarget == NULL)
+    {
+        RECT rc;
+        GetClientRect(m_hwnd, &rc);
+
+        D2D1_SIZE_U size = D2D1::SizeU(rc.right, rc.bottom);
+
+        hr = m_pFactory->CreateHwndRenderTarget(
+            D2D1::RenderTargetProperties(),
+            D2D1::HwndRenderTargetProperties(m_hwnd, size),
+            &m_pRenderTarget);
+
+        if (SUCCEEDED(hr))
+        {
+            const D2D1_COLOR_F color = D2D1::ColorF(0, 0, 256);
+            hr = m_pRenderTarget->CreateSolidColorBrush(color, &m_pBrush);
+        }
+    }
+    return hr;
+}
+
+template <class T> static void SafeRelease(T** ppT)
+{
+    if (*ppT)
+    {
+        (*ppT)->Release();
+        *ppT = NULL;
+    }
+}
+// 释放 D2D 资源
+void MainWindow::DiscardGraphicsResources() {
+    SafeRelease(&m_pRenderTarget);
+    SafeRelease(&m_pBrush);
+}
+```
+
+让静态函数可以调用成员:
+``` c++
+LRESULT CALLBACK MainWindow::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+    MainWindow* pThis = NULL;
+
+    if (uMsg == WM_NCCREATE)
+    {
+        // 从 CREATESTRUCT 中提取 this 指针
+        CREATESTRUCT* pCreate = (CREATESTRUCT*)lParam;
+        pThis = (MainWindow*)pCreate->lpCreateParams;
+
+        // 保存到窗口的用户数据中
+        SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)pThis);
+
+        // 保存窗口句柄到对象
+        pThis->m_hwnd = hwnd;
+    }
+    else
+    {
+        // 从窗口的用户数据中取出 this 指针
+        pThis = (MainWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    }
+
+    if (pThis)
+    {
+        // 调用成员函数！
+        return pThis->HandleMessage(uMsg, wParam, lParam);
+    }
+    else
+    {
+        return DefWindowProc(hwnd, uMsg, wParam, lParam);
+    }
+}
+```

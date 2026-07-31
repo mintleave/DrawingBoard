@@ -11,7 +11,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 int xPos, yPos;     // 记录鼠标坐标
 int xPoint0, yPoint0, xPoint1, yPoint1; // 绘制起点与终点
-bool IsPointing = false;    // 是否处于绘制状态
+bool IsPointingLine = false, IsPointingRect = false;    // 是否处于绘制状态, 矩形还是线段
 
 ID2D1Factory*          pFactory;
 ID2D1HwndRenderTarget* pRenderTarget;
@@ -178,13 +178,20 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
             pRenderTarget->Clear(D2D1::ColorF(D2D1::ColorF::White));
 
-            pRenderTarget->DrawLine(
-                D2D1::Point2F(xPoint0, yPoint0),
-                D2D1::Point2F(xPoint1, yPoint1),
-                pBrush,
-                3.0f  // 线宽
-            );
-
+            if (IsPointingLine) {
+                pRenderTarget->DrawLine(
+                    D2D1::Point2F(xPoint0, yPoint0),
+                    D2D1::Point2F(xPoint1, yPoint1),
+                    pBrush,
+                    3.0f  // 线宽
+                );
+            }
+            else if (IsPointingRect) {
+                pRenderTarget->DrawRectangle(
+                    D2D1::RectF(xPoint0, yPoint0, xPoint1, yPoint1),
+                    pBrush,
+                    3.0f);
+            }
 
 
             hr = pRenderTarget->EndDraw();
@@ -198,6 +205,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         return 0;
     }
 
+    // 按下左键
     case WM_LBUTTONDOWN:
     {
         /*xPos = GET_X_LPARAM(lParam);
@@ -206,19 +214,41 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
         xPoint0 = GET_X_LPARAM(lParam);
         yPoint0 = GET_Y_LPARAM(lParam);
-        IsPointing = true;
+
+        IsPointingLine = true;
+        IsPointingRect = false;
 
         return 0;
     }
 
+    // 松开左键
     case WM_LBUTTONUP:
     {
         /*xPos = GET_X_LPARAM(lParam);
         yPos = GET_Y_LPARAM(lParam);
         InvalidateRect(hwnd, NULL, TRUE);*/  // 触发重绘
 
-        IsPointing = false;
+        IsPointingLine = false;
 
+        return 0;
+    }
+
+    // 按下右键
+    case WM_RBUTTONDOWN:
+    {
+        xPoint0 = GET_X_LPARAM(lParam);
+        yPoint0 = GET_Y_LPARAM(lParam);
+        
+        IsPointingLine = false;
+        IsPointingRect = true;
+
+        return 0;
+    }
+
+    // 松开右键
+    case WM_RBUTTONUP:
+    {
+        IsPointingRect = false;
         return 0;
     }
 
@@ -228,7 +258,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
         yPos = GET_Y_LPARAM(lParam);
         InvalidateRect(hwnd, NULL, TRUE);*/  // 触发重绘
 
-        if (IsPointing) {
+        if (IsPointingLine || IsPointingRect) {
             xPoint1 = GET_X_LPARAM(lParam);
             yPoint1 = GET_Y_LPARAM(lParam);
             InvalidateRect(hwnd, NULL, FALSE);
